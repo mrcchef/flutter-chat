@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import './message_bubble.dart';
 
@@ -43,7 +44,13 @@ class _MessagesState extends State<Messages> {
                 reverse:
                     true, // This will build the widget return by itemBuilder fron reverse order
                 itemBuilder: (ctx, index) {
-                  return MessageBubble(chatDocs[index]['text']);
+                  final _userId = FirebaseAuth.instance.currentUser.uid;
+                  return MessageBubble(
+                    chatDocs[index]['text'],
+                    chatDocs[index]['userId'] == _userId,
+                    chatDocs[index]['userName'],
+                    // key: ValueKey(chatDocs[index].documentID),
+                  );
                 },
                 itemCount: chatDocs.length,
               );

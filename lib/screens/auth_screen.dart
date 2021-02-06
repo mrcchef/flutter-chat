@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; // for onPlatformException
+import 'dart:io';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 import '../widgets/build_form.dart';
 
@@ -15,7 +17,7 @@ class AuthScreen extends StatefulWidget {
 class _AuthScreenState extends State<AuthScreen> {
   bool isLoading = false;
   void submitAuthData(String emailId, String userName, String password,
-      bool isLogin, BuildContext ctx) async {
+      File pickedImage, bool isLogin, BuildContext ctx) async {
     setState(() {
       isLoading = true;
     });
@@ -36,6 +38,12 @@ class _AuthScreenState extends State<AuthScreen> {
           'emailId': emailId,
           'userName': userName,
         });
+        final ref = FirebaseStorage.instance
+            .ref()
+            .child('user_image')
+            .child(_auth.currentUser.uid + '.jpg');
+
+        await ref.putFile(pickedImage).whenComplete(() => null);
       }
     } on PlatformException catch (err) {
       String message =

@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'dart:io';
 
-import '../screens/auth_screen.dart';
+import './user_pick_image.dart';
 
 class BuildForm extends StatefulWidget {
   final void Function(String emailId, String userName, String password,
-      bool isLogin, BuildContext ctx) submitFn;
+      File pickedImage, bool isLogin, BuildContext ctx) submitFn;
   final isLoading;
   BuildForm(this.submitFn, this.isLoading);
 
@@ -20,20 +21,32 @@ class _BuildFormState extends State<BuildForm> {
     'userName': '',
     'password': '',
   };
+  File pickedImage;
   void _submitData() {
     FocusScope.of(context)
         .unfocus(); // After clicking on Login button the focus form any text field get removed
     // and any keyboard that is opened will be closed
     final isValidate = _form.currentState.validate();
     if (!isValidate) return;
+    if (!_isLogin && pickedImage == null) {
+      Scaffold.of(context).showSnackBar(SnackBar(
+        content: Text('Please pick a image'),
+        backgroundColor: Theme.of(context).errorColor,
+      ));
+      return;
+    }
     _form.currentState.save();
-    setState(() {
-      print(_authData['emailId']);
-      print(_authData['userName']);
-      print(_authData['password']);
-    });
+    // setState(() {
+    //   print(_authData['emailId']);
+    //   print(_authData['userName']);
+    //   print(_authData['password']);
+    // });
     widget.submitFn(_authData['emailId'], _authData['userName'],
-        _authData['password'], _isLogin, context);
+        _authData['password'], pickedImage, _isLogin, context);
+  }
+
+  void pickedImageFn(File image) {
+    pickedImage = image;
   }
 
   @override
@@ -43,6 +56,7 @@ class _BuildFormState extends State<BuildForm> {
       child: SingleChildScrollView(
         child: Column(
           children: [
+            if (!_isLogin) UserPickImage(pickedImageFn),
             TextFormField(
               key: ValueKey('emailId'),
               decoration: InputDecoration(labelText: 'Email Id'),

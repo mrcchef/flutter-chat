@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 
@@ -16,10 +17,17 @@ class _AddNewMessageState extends State<AddNewMessage> {
     FocusScope.of(context).unfocus();
     _messageController.clear(); // This will clear the text on the TextField
     Firebase.initializeApp();
+    final _user = FirebaseAuth.instance.currentUser;
+    final _userName = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(_user.uid)
+        .get();
     FirebaseFirestore.instance.collection('chat').add(
       {
         'text': _message,
         'timeStamp': Timestamp.now(),
+        'userId': _user.uid,
+        'userName': _userName['userName'],
       },
     );
   }
